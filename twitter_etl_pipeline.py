@@ -12,7 +12,7 @@ def run_twitter_etl():
     consumer_secret = "kwrp6rWvB2dsvZf88XJrMlZFBSelEFUwP3Nsre8BDCX3g" 
 
 
-    # Twitter authentication
+    #Twitter authentication
     auth = tweepy.OAuthHandler(access_key, access_secret)   
     auth.set_access_token(consumer_key, consumer_secret) 
 

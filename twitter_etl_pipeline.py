@@ -26,6 +26,19 @@ def run_twitter_etl():
                             # otherwise only the first 140 words are extracted
                             tweet_mode = 'extended'
                             )
-    print(tweets)
-    
-run_twitter_etl()
+    list = []
+    for tweet in tweets:
+        text = tweet._json["full_text"]
+
+        refined_tweet = {"user": tweet.user.screen_name,
+                        'text' : text,
+                        'favorite_count' : tweet.favorite_count,
+                        'retweet_count' : tweet.retweet_count,
+                        'created_at' : tweet.created_at}
+        
+        list.append(refined_tweet)
+
+    df = pd.DataFrame(list)
+    df.to_csv('elons_tweets.csv')
+
+run_twitter_etl() 

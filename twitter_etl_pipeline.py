@@ -41,4 +41,4 @@ def run_twitter_etl():
     df = pd.DataFrame(list)
     df.to_csv('elons_tweets.csv')
 
-run_twitter_etl() 
+# run_twitter_etl() used this method for testing 

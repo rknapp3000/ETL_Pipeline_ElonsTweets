@@ -22,3 +22,9 @@ dag = DAG(
     description='Twitter Dag ETL Process',
     schedule_interval=timedelta(days=1),
 )
+
+dag = DAG(
+    'twitter_dag',
+    default_args=default_args,
+    description='My first etl code'
+)

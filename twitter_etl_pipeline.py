@@ -11,7 +11,6 @@ def run_twitter_etl():
     consumer_key = "1585462926672003074-OcRwt7MlLPrdz0XqnB2YETrBdqbZ3A" 
     consumer_secret = "kwrp6rWvB2dsvZf88XJrMlZFBSelEFUwP3Nsre8BDCX3g" 
 
-
     #Twitter authentication
     auth = tweepy.OAuthHandler(access_key, access_secret)   
     auth.set_access_token(consumer_key, consumer_secret) 
@@ -42,3 +41,4 @@ def run_twitter_etl():
     df.to_csv('elons_tweets.csv')
 
 # run_twitter_etl() used this method for testing 
+

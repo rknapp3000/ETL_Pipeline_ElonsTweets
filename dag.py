@@ -28,3 +28,12 @@ dag = DAG(
     default_args=default_args,
     description='My first etl code'
 )
+
+#Calling the ETL method from twitter_etl_pipeline
+run_etl = PythonOperator(
+    task_id='complete_twitter_etl',
+    python_callable=run_twitter_etl,
+    dag=dag, 
+)
+
+run_etl

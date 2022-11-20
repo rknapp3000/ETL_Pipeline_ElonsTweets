@@ -26,7 +26,7 @@ dag = DAG(
 dag = DAG(
     'twitter_dag',
     default_args=default_args,
-    description='My first etl code'
+    description='Etl Code'
 )
 
 #Calling the ETL method from twitter_etl_pipeline

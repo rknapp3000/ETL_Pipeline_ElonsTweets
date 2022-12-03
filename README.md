@@ -1,1 +1,1 @@
-# ETL_Pipeline_ElonsTweets
+An end-to-end data engineering project involving extracting data using the Twitter API, utilizing the python pandas library to transform data, deploying the code on Airflow/EC2, and saving the final result in an Amazon S3 bucket.

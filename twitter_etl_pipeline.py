@@ -1,45 +1,80 @@
 import tweepy
 import pandas as pd 
-import json
-from datetime import datetime
-import s3fs 
 import os
-from dotenv import load_dotenv
+import logging
 
-def configure(): 
-    load_dotenv()
-    
-def run_twitter_etl():
-    configure()
-    
-    #Twitter authentication
-    auth = tweepy.OAuthHandler(os.getenv(access_key), os.getenv(access_secret))   
-    auth.set_access_token(os.getenv(consumer_key), os.getenv(consumer_secret)) 
 
-    # # # Creating an API object 
-    api = tweepy.API(auth)
-    tweets = api.user_timeline(screen_name='@elonmusk', 
-                            # 200 is the maximum allowed count
-                            count=200,
-                            include_rts = False,
-                            # Necessary to keep full_text 
-                            # otherwise only the first 140 words are extracted
-                            tweet_mode = 'extended'
-                            )
-    list = []
+def authenticate_twitter():
+    """Authenticate with the Twitter API using credentials from environment variables."""
+    try:
+        auth = tweepy.OAuthHandler(os.getenv('CONSUMER_KEY'), os.getenv('CONSUMER_SECRET'))
+        auth.set_access_token(os.getenv('ACCESS_TOKEN'), os.getenv('ACCESS_TOKEN_SECRET'))
+        api = tweepy.API(auth, wait_on_rate_limit=True)  # wait_on_rate_limit handles rate limiting
+        return api
+    except Exception as e:
+        logging.error("Error during authentication: %s", e)
+        raise
+
+
+def fetch_tweets(api, username, tweet_count=200):
+    """Fetch tweets from a given user timeline."""
+    try:
+        tweets = api.user_timeline(screen_name=username, 
+                                   count=tweet_count,
+                                   include_rts=False,
+                                   tweet_mode='extended')
+        return tweets
+    except Exception as e:
+        logging.error("Error fetching tweets: %s", e)
+        raise
+
+
+def extract_tweet_data(tweets):
+    """Extract relevant data from tweets and return a list of dictionaries."""
+    list_of_tweets = []
     for tweet in tweets:
-        text = tweet._json["full_text"]
+        try:
+            refined_tweet = {
+                "user": tweet.user.screen_name,
+                "text": tweet.full_text,  # Accessing full_text directly in tweet_mode='extended'
+                "favorite_count": tweet.favorite_count,
+                "retweet_count": tweet.retweet_count,
+                "created_at": tweet.created_at
+            }
+            list_of_tweets.append(refined_tweet)
+        except Exception as e:
+            logging.error("Error extracting tweet data: %s", e)
+            continue  # Skip tweet if there's any issue with it
+    return list_of_tweets
 
-        refined_tweet = {"user": tweet.user.screen_name,
-                        'text' : text,
-                        'favorite_count' : tweet.favorite_count,
-                        'retweet_count' : tweet.retweet_count,
-                        'created_at' : tweet.created_at}
-        
-        list.append(refined_tweet)
 
-    df = pd.DataFrame(list)
-    df.to_csv('elons_tweets.csv')
+def save_to_csv(tweet_data, filename='elons_tweets.csv'):
+    """Save the tweet data to a CSV file."""
+    try:
+        df = pd.DataFrame(tweet_data)
+        df.to_csv(filename, index=False)
+        logging.info("Tweets saved to %s", filename)
+    except Exception as e:
+        logging.error("Error saving to CSV: %s", e)
+        raise
 
-# run_twitter_etl() used this method for testing 
+def run_twitter_etl():
+    """Main function to run the Twitter ETL process."""
+    
+    # Authenticate and get API object
+    api = authenticate_twitter()
 
+    # Fetch tweets from Elon Musk's timeline
+    tweets = fetch_tweets(api, username='elonmusk', tweet_count=200)
+
+    # Extract tweet data and save to CSV
+    tweet_data = extract_tweet_data(tweets)
+    save_to_csv(tweet_data)
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    try:
+        run_twitter_etl()
+    except Exception as e:
+        logging.error("Error in ETL process: %s", e)

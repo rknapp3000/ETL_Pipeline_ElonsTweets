@@ -1,4 +1,7 @@
-apache-airflow
+dagster==1.9.*
+dagster-cloud
+dagster-duckdb
+dagster-webserver
 tweepy
 pandas
 logging
